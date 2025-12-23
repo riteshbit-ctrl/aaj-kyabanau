@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Aaj Kya Banau</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
@@ -88,6 +89,93 @@
             transform: translateX(300px);
           }
         }
+
+        /* ---------- Mobile-first fixes ---------- */
+
+body {
+  font-family: Arial, sans-serif;
+  max-width: 720px;
+  margin: auto;
+  padding: 12px;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+button {
+  font-size: 16px;
+  padding: 10px;
+}
+
+/* Cards look better on mobile */
+.card {
+  padding: 14px;
+}
+
+/* Ingredients + steps spacing */
+.card ul, .card ol {
+  padding-left: 18px;
+}
+
+/* Step-by-step cooking mode */
+#cookMode {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fffbe6;
+}
+
+/* Cooking buttons responsive */
+#cookMode button {
+  width: 48%;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+/* Loading text center */
+#loadingText {
+  text-align: center;
+}
+
+/* ---------- Responsive breakpoints ---------- */
+@media (max-width: 600px) {
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  textarea, select, button {
+    font-size: 16px;
+  }
+
+  .options {
+    font-size: 14px;
+  }
+
+  /* Stack checkboxes nicely */
+  .options label {
+    display: block;
+    margin-top: 6px;
+  }
+
+  /* Skeleton height smaller */
+  .skeleton-card {
+    height: 120px;
+  }
+
+  /* Step text readability */
+  #stepText {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+}
+
     </style>
 </head>
 
@@ -163,7 +251,7 @@
     <div id="stepText" style="font-size:16px;"></div>
     <div id="stepTime" style="margin-top:5px;"></div>
 
-    <div style="margin-top:15px;">
+    <div style="display:flex; justify-content:space-between; gap:8px; margin-top:15px;">
         <button onclick="prevStep()">◀ Prev</button>
         <button onclick="nextStep()">Next ▶</button>
     </div>
