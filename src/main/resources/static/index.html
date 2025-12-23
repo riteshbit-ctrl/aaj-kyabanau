@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Aaj Kya Banau</title>
+
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          max-width: 700px;
+          margin: auto;
+          padding: 15px;
+        }
+
+        textarea, select, button {
+          width: 100%;
+          margin-top: 8px;
+          padding: 8px;
+          font-size: 14px;
+        }
+
+        .options {
+          margin-top: 10px;
+        }
+
+        .card {
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 12px;
+          margin-top: 15px;
+          background: #fafafa;
+        }
+
+        .title {
+          font-size: 18px;
+          font-weight: bold;
+        }
+
+        .section {
+          margin-top: 8px;
+        }
+
+        /* ---------- Spinner ---------- */
+        .spinner {
+          margin: auto;
+          width: 40px;
+          height: 40px;
+          border: 4px solid #ddd;
+          border-top: 4px solid #ff9800;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* ---------- Skeleton Cards ---------- */
+        .skeleton-card {
+          background: #f0f0f0;
+          border-radius: 8px;
+          padding: 16px;
+          margin-top: 15px;
+          height: 140px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .skeleton-card::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -150px;
+          width: 150px;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,0.6),
+            transparent
+          );
+          animation: shimmer 1.2s infinite;
+        }
+
+        @keyframes shimmer {
+          100% {
+            transform: translateX(300px);
+          }
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>🍲 Aaj Kya Banau?</h2>
+
+<textarea id="ingredients" placeholder="Fridge mein kya hai? (bolo ya likho)"></textarea>
+
+<button onclick="startVoice()">🎤 Speak</button>
+
+<div class="options">
+    ⏱️ Time:
+    <select id="time">
+        <option value="15">15 min</option>
+        <option value="30">30 min</option>
+        <option value="45">45 min</option>
+    </select>
+</div>
+
+<div class="options">
+    👨‍👩‍👧‍👦 No. of People:
+    <select id="servings">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+</div>
+
+<div class="options">
+    <label>
+        <input type="checkbox" id="diabetic"> Diabetic
+    </label>
+    <label style="margin-left: 10px;">
+        <input type="checkbox" id="weightLoss"> Weight Loss
+    </label>
+    <label style="margin-left: 10px;">
+        <input type="checkbox" id="kidsFriendly"> Kids Friendly
+    </label>
+</div>
+
+<!-- IMPORTANT: ID added -->
+<button id="suggestBtn" onclick="suggest()">Suggest Karo</button>
+
+<!-- ---------- LOADING ---------- -->
+<div id="loading" style="display:none; text-align:center; margin-top:20px;">
+    <div class="spinner"></div>
+    <div id="loadingText" style="margin-top:10px; font-size:16px;">
+        👩‍🍳 Recipes soch rahe hain…
+    </div>
+</div>
+
+<!-- ---------- SKELETONS ---------- -->
+<div id="skeletons" style="display:none;">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+</div>
+
+<!-- ---------- RESULTS ---------- -->
+<div id="result"></div>
+
+<!-- ---------- STEP-BY-STEP COOKING MODE ---------- -->
+<div id="cookMode" style="display:none; margin-top:20px;">
+    <h3 id="cookTitle"></h3>
+
+    <div style="margin:10px 0;">
+        <b id="stepCounter"></b>
+    </div>
+
+    <div id="stepText" style="font-size:16px;"></div>
+    <div id="stepTime" style="margin-top:5px;"></div>
+
+    <div style="margin-top:15px;">
+        <button onclick="prevStep()">◀ Prev</button>
+        <button onclick="nextStep()">Next ▶</button>
+    </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
