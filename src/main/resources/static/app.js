@@ -15,6 +15,7 @@ let messageIndex = 0;
 let currentDishes = [];
 let cookingDish = null;
 let stepIndex = 0;
+let todaysPlan = null;
 
 
 /* =========================
@@ -45,7 +46,6 @@ function suggest() {
   const skeletonsEl = document.getElementById("skeletons");
   const button = document.getElementById("suggestBtn");
 
-  // Reset UI
   resultEl.innerHTML = "";
   resultEl.style.display = "block";
   document.getElementById("cookMode").style.display = "none";
@@ -55,7 +55,6 @@ function suggest() {
   button.disabled = true;
   button.innerText = "Soch rahe hain... 🍳";
 
-  // Rotating loading messages
   messageIndex = 0;
   loadingTextEl.innerText = messages[messageIndex];
   messageInterval = setInterval(() => {
@@ -77,15 +76,15 @@ function suggest() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   })
-  .then(res => res.json())
-  .then(data => {
-    stopLoading();
-    render(data);
-  })
-  .catch(() => {
-    stopLoading();
-    resultEl.innerText = "❌ Kuch galat ho gaya. Please try again.";
-  });
+    .then(res => res.json())
+    .then(data => {
+      stopLoading();
+      render(data);
+    })
+    .catch(() => {
+      stopLoading();
+      resultEl.innerText = "❌ Kuch galat ho gaya. Please try again.";
+    });
 }
 
 
@@ -94,13 +93,10 @@ function suggest() {
 ========================= */
 
 function stopLoading() {
-  const loadingEl = document.getElementById("loading");
-  const skeletonsEl = document.getElementById("skeletons");
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("skeletons").style.display = "none";
+
   const button = document.getElementById("suggestBtn");
-
-  loadingEl.style.display = "none";
-  skeletonsEl.style.display = "none";
-
   button.disabled = false;
   button.innerText = "Suggest Karo";
 
@@ -133,11 +129,11 @@ function render(data) {
     let html = `
       <div class="title">🍽️ ${index + 1}. ${d.name}</div>
       <div>👨‍👩‍👧‍👦 Serves: ${d.servings}</div>
-      <div>⏱️ Prep: ${d.prepTimeMinutes} min | Cook: ${d.cookTimeMinutes} min | Total: ${d.totalTimeMinutes} min</div>
+      <div>⏱️ Prep: ${d.prepTimeMinutes} | Cook: ${d.cookTimeMinutes} | Total: ${d.totalTimeMinutes} min</div>
       <div class="section">${d.why}</div>
     `;
 
-    if (d.ingredients && d.ingredients.length > 0) {
+    if (d.ingredients?.length) {
       html += `<div class="section"><b>🧺 Ingredients:</b><ul>`;
       d.ingredients.forEach(i => {
         html += `<li>${i.quantity} ${i.unit} ${i.name}</li>`;
@@ -145,23 +141,23 @@ function render(data) {
       html += `</ul></div>`;
     }
 
-    if (d.steps && d.steps.length > 0) {
-      html += `<div class="section"><b>👩‍🍳 Steps:</b><ol>`;
-      d.steps.forEach(s => {
-        html += `<li>${s.text} (${s.timeMinutes} min)</li>`;
-      });
-      html += `</ol></div>`;
-    }
+  /* ---- Steps Preview ---- */
+  if (d.steps && d.steps.length > 0) {
+    html += `<div class="section"><b>👩‍🍳 Steps:</b><ol>`;
+    d.steps.forEach((s, i) => {
+      html += `<li>${s.text} (${s.timeMinutes} min)</li>`;
+    });
+    html += `</ol></div>`;
+  }
 
-    if (d.kidsTip) {
-      html += `<div class="section"><b>👶 Kids Tip:</b> ${d.kidsTip}</div>`;
-    }
+  /* ---- Buttons at the END ---- */
+  html += `
+    <div style="display:flex; gap:8px; margin-top:14px;">
+      <button class="secondary" onclick="setTodayPlan(${index})">🍽️ Cook Today</button>
+      <button class="primary" onclick="startCooking(${index})">👩‍🍳 Start Cooking</button>
+    </div>
+  `;
 
-    html += `
-      <button onclick="startCooking(${index})" style="margin-top:10px;">
-        👩‍🍳 Start Cooking
-      </button>
-    `;
 
     card.innerHTML = html;
     resultEl.appendChild(card);
@@ -170,11 +166,34 @@ function render(data) {
 
 
 /* =========================
-   STEP-BY-STEP COOKING MODE
+   TODAY’S PLAN
 ========================= */
 
-function startCooking(dishIndex) {
-  cookingDish = currentDishes[dishIndex];
+function setTodayPlan(index) {
+  todaysPlan = currentDishes[index];
+  localStorage.setItem("todaysPlan", JSON.stringify(todaysPlan));
+  showTodayPlan();
+}
+
+function showTodayPlan() {
+  if (!todaysPlan) return;
+
+  document.getElementById("todayPlanName").innerText = todaysPlan.name;
+  document.getElementById("todayPlanBanner").style.display = "block";
+}
+
+function startCookingFromPlan() {
+  const index = currentDishes.findIndex(d => d.name === todaysPlan.name);
+  if (index >= 0) startCooking(index);
+}
+
+
+/* =========================
+   COOKING MODE
+========================= */
+
+function startCooking(index) {
+  cookingDish = currentDishes[index];
   stepIndex = 0;
 
   document.getElementById("result").style.display = "none";
@@ -191,8 +210,7 @@ function showStep() {
     `Step ${stepIndex + 1} of ${cookingDish.steps.length}`;
 
   document.getElementById("stepText").innerText = step.text;
-  document.getElementById("stepTime").innerText =
-    `⏱️ ${step.timeMinutes} min`;
+  document.getElementById("stepTime").innerText = `⏱️ ${step.timeMinutes} min`;
 }
 
 function nextStep() {
@@ -208,3 +226,16 @@ function prevStep() {
     showStep();
   }
 }
+
+
+/* =========================
+   RESTORE PLAN ON LOAD
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("todaysPlan");
+  if (saved) {
+    todaysPlan = JSON.parse(saved);
+    showTodayPlan();
+  }
+});

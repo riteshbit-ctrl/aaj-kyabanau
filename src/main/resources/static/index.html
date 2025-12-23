@@ -8,40 +8,85 @@
     <style>
         body {
           font-family: Arial, sans-serif;
-          max-width: 700px;
+          max-width: 720px;
           margin: auto;
-          padding: 15px;
+          padding: 12px;
+          background: #ffffff;
         }
 
+        /* Inputs */
         textarea, select, button {
           width: 100%;
           margin-top: 8px;
-          padding: 8px;
-          font-size: 14px;
+          padding: 10px;
+          font-size: 16px;
         }
 
-        .options {
-          margin-top: 10px;
+        textarea {
+          min-height: 60px;
         }
 
+        /* Recipe Card */
         .card {
           border: 1px solid #ddd;
-          border-radius: 8px;
-          padding: 12px;
-          margin-top: 15px;
+          border-radius: 10px;
+          padding: 14px;
+          margin-top: 16px;
           background: #fafafa;
         }
 
+        /* Recipe Title */
         .title {
-          font-size: 18px;
+          font-size: 20px;
+          font-weight: 700;
+          margin-bottom: 6px;
+        }
+
+        /* Meta info */
+        .meta {
+          font-size: 14px;
+          color: #666;
+          margin-bottom: 6px;
+        }
+
+        /* Sections */
+        .section {
+          margin-top: 10px;
+        }
+
+        /* Why text */
+        .why-text {
+          font-size: 14px;
+          color: #444;
+          background: #f2f2f2;
+          padding: 8px;
+          border-radius: 6px;
+        }
+
+        /* Ingredient list */
+        .section ul {
+          margin-top: 6px;
+          padding-left: 18px;
+        }
+
+        /* Buttons */
+        button {
+          cursor: pointer;
+        }
+
+        button.primary {
+          background: #ff9800;
+          border: none;
+          color: #fff;
           font-weight: bold;
         }
 
-        .section {
-          margin-top: 8px;
+        button.secondary {
+          background: #ffffff;
+          border: 1px solid #ccc;
         }
 
-        /* ---------- Spinner ---------- */
+        /* Loading spinner */
         .spinner {
           margin: auto;
           width: 40px;
@@ -53,129 +98,26 @@
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
 
-        /* ---------- Skeleton Cards ---------- */
-        .skeleton-card {
-          background: #f0f0f0;
-          border-radius: 8px;
+        /* Cooking mode */
+        #cookMode {
+          border: 1px solid #ddd;
+          border-radius: 10px;
           padding: 16px;
-          margin-top: 15px;
-          height: 140px;
-          position: relative;
-          overflow: hidden;
+          background: #fffbe6;
+          margin-top: 16px;
         }
 
-        .skeleton-card::after {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: -150px;
-          width: 150px;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,0.6),
-            transparent
-          );
-          animation: shimmer 1.2s infinite;
+        /* Today Plan Banner */
+        #todayPlanBanner {
+          margin-top: 16px;
+          padding: 12px;
+          background: #fff3e0;
+          border: 1px solid #ff9800;
+          border-radius: 10px;
         }
-
-        @keyframes shimmer {
-          100% {
-            transform: translateX(300px);
-          }
-        }
-
-        /* ---------- Mobile-first fixes ---------- */
-
-body {
-  font-family: Arial, sans-serif;
-  max-width: 720px;
-  margin: auto;
-  padding: 12px;
-}
-
-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-button {
-  font-size: 16px;
-  padding: 10px;
-}
-
-/* Cards look better on mobile */
-.card {
-  padding: 14px;
-}
-
-/* Ingredients + steps spacing */
-.card ul, .card ol {
-  padding-left: 18px;
-}
-
-/* Step-by-step cooking mode */
-#cookMode {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 14px;
-  background: #fffbe6;
-}
-
-/* Cooking buttons responsive */
-#cookMode button {
-  width: 48%;
-  margin-top: 10px;
-  font-size: 16px;
-}
-
-/* Loading text center */
-#loadingText {
-  text-align: center;
-}
-
-/* ---------- Responsive breakpoints ---------- */
-@media (max-width: 600px) {
-
-  h2 {
-    font-size: 20px;
-  }
-
-  .title {
-    font-size: 16px;
-  }
-
-  textarea, select, button {
-    font-size: 16px;
-  }
-
-  .options {
-    font-size: 14px;
-  }
-
-  /* Stack checkboxes nicely */
-  .options label {
-    display: block;
-    margin-top: 6px;
-  }
-
-  /* Skeleton height smaller */
-  .skeleton-card {
-    height: 120px;
-  }
-
-  /* Step text readability */
-  #stepText {
-    font-size: 16px;
-    line-height: 1.4;
-  }
-}
-
     </style>
 </head>
 
@@ -183,77 +125,62 @@ button {
 
 <h2>🍲 Aaj Kya Banau?</h2>
 
-<textarea id="ingredients" placeholder="Fridge mein kya hai? (bolo ya likho)"></textarea>
-
+<textarea id="ingredients" placeholder="Fridge mein kya hai? (aloo, matar, palak...)"></textarea>
 <button onclick="startVoice()">🎤 Speak</button>
 
-<div class="options">
-    ⏱️ Time:
-    <select id="time">
-        <option value="15">15 min</option>
-        <option value="30">30 min</option>
-        <option value="45">45 min</option>
-    </select>
+<select id="time">
+    <option value="15">15 min</option>
+    <option value="30">30 min</option>
+    <option value="45">45 min</option>
+</select>
+
+<select id="servings">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+</select>
+
+<div style="margin-top:10px;">
+    <label><input type="checkbox" id="diabetic"> Diabetic</label>
+    <label style="margin-left:10px;"><input type="checkbox" id="weightLoss"> Weight Loss</label>
+    <label style="margin-left:10px;"><input type="checkbox" id="kidsFriendly"> Kids Friendly</label>
 </div>
 
-<div class="options">
-    👨‍👩‍👧‍👦 No. of People:
-    <select id="servings">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select>
+<button id="suggestBtn" class="primary" onclick="suggest()">Suggest Karo</button>
+
+<!-- TODAY PLAN -->
+<div id="todayPlanBanner" style="display:none;">
+    🍽️ <b>Today’s Plan:</b> <span id="todayPlanName"></span>
+    <div style="margin-top:8px;">
+        <button class="primary" onclick="startCookingFromPlan()">👩‍🍳 Start Cooking</button>
+    </div>
 </div>
 
-<div class="options">
-    <label>
-        <input type="checkbox" id="diabetic"> Diabetic
-    </label>
-    <label style="margin-left: 10px;">
-        <input type="checkbox" id="weightLoss"> Weight Loss
-    </label>
-    <label style="margin-left: 10px;">
-        <input type="checkbox" id="kidsFriendly"> Kids Friendly
-    </label>
-</div>
-
-<!-- IMPORTANT: ID added -->
-<button id="suggestBtn" onclick="suggest()">Suggest Karo</button>
-
-<!-- ---------- LOADING ---------- -->
+<!-- LOADING -->
 <div id="loading" style="display:none; text-align:center; margin-top:20px;">
     <div class="spinner"></div>
-    <div id="loadingText" style="margin-top:10px; font-size:16px;">
-        👩‍🍳 Recipes soch rahe hain…
-    </div>
+    <div id="loadingText" style="margin-top:10px;"></div>
 </div>
 
-<!-- ---------- SKELETONS ---------- -->
 <div id="skeletons" style="display:none;">
-    <div class="skeleton-card"></div>
-    <div class="skeleton-card"></div>
-    <div class="skeleton-card"></div>
+    <div class="card">Loading recipes...</div>
+    <div class="card">Loading recipes...</div>
 </div>
 
-<!-- ---------- RESULTS ---------- -->
+<!-- RESULTS -->
 <div id="result"></div>
 
-<!-- ---------- STEP-BY-STEP COOKING MODE ---------- -->
-<div id="cookMode" style="display:none; margin-top:20px;">
+<!-- COOKING MODE -->
+<div id="cookMode" style="display:none;">
     <h3 id="cookTitle"></h3>
+    <div id="stepCounter"></div>
+    <p id="stepText" style="font-size:18px;"></p>
+    <p id="stepTime"></p>
 
-    <div style="margin:10px 0;">
-        <b id="stepCounter"></b>
-    </div>
-
-    <div id="stepText" style="font-size:16px;"></div>
-    <div id="stepTime" style="margin-top:5px;"></div>
-
-    <div style="display:flex; justify-content:space-between; gap:8px; margin-top:15px;">
-        <button onclick="prevStep()">◀ Prev</button>
-        <button onclick="nextStep()">Next ▶</button>
+    <div style="display:flex; gap:10px;">
+        <button class="secondary" onclick="prevStep()">◀ Prev</button>
+        <button class="primary" onclick="nextStep()">Next ▶</button>
     </div>
 </div>
 
