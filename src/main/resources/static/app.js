@@ -186,6 +186,7 @@ function render(data) {
       <div style="display:flex; gap:8px; margin-top:14px;">
         <button class="primary" onclick="startCooking(${index})">👩‍🍳 Start Cooking</button>
         <button onclick="saveRecipe(${index})">❤️ Save</button>
+         <button onclick="shareRecipe(${index})">📤 Share</button>
       </div>
     `;
 
@@ -343,3 +344,43 @@ function speakStep(text) {
 
   window.speechSynthesis.speak(utterance);
 }
+
+function shareRecipe(index) {
+  const d = currentDishes[index];
+  if (!d) return;
+
+  const appUrl = "https://aaj-kyabanau.onrender.com"; // CHANGE if needed
+
+  let text = `🍽️ *${d.name}*\n`;
+  text += `👨‍👩‍👧‍👦 Serves: ${d.servings}\n`;
+  text += `⏱️ Total Time: ${d.totalTimeMinutes} min\n\n`;
+
+  if (d.nutrition) {
+    text += `🔥 ${d.nutrition.calories} kcal | `;
+    text += `🥔 Carbs: ${d.nutrition.carbs} | `;
+    text += `🍗 Protein: ${d.nutrition.protein} | `;
+    text += `🧈 Fat: ${d.nutrition.fat}\n`;
+    if (d.nutrition.dietTag) {
+      text += `✅ ${d.nutrition.dietTag}\n`;
+    }
+    text += `\n`;
+  }
+
+  text += `🧺 *Ingredients:*\n`;
+  d.ingredients.forEach(i => {
+    text += `- ${i.quantity} ${i.unit} ${i.name}\n`;
+  });
+
+  text += `\n👩‍🍳 *Steps:*\n`;
+  d.steps.forEach((s, idx) => {
+    text += `${idx + 1}. ${s.text}\n`;
+  });
+
+  // 🔗 APP LINK (IMPORTANT)
+  text += `\n🔗 Cook aur recipes ke liye:\n${appUrl}`;
+  text += `\n\n✨ Generated via *Aaj Kya Banau?*`;
+
+  const encoded = encodeURIComponent(text);
+  window.open(`https://wa.me/?text=${encoded}`, "_blank");
+}
+
