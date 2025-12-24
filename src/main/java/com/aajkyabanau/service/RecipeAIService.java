@@ -133,54 +133,71 @@ Example Hinglish style:
 - If output sounds fully English, it is WRONG
 
 🔥 INGREDIENT USAGE RULES (VERY IMPORTANT):
-
 - Use at least ONE provided ingredient per dish
 - Prefer using more if practical
 - Allow different dishes to use different subsets
 - Always return exactly 3 dishes
-- User will provide a list of available ingredients
-- Each suggested dish MUST use at least ONE of the provided ingredients
+- Each dish MUST use at least ONE provided ingredient
 - Prefer dishes that use MORE of the provided ingredients
-- It is acceptable for different dishes to use:
-  - all ingredients
-  - a subset of ingredients
-  - or a single ingredient
-- Do NOT suggest dishes that use NONE of the provided ingredients
-- Do NOT introduce unrelated dishes as the main recipe
-
+- Do NOT suggest dishes using NONE of the provided ingredients
 
 🔥 SERVINGS RULE (CRITICAL):
-- All recipes MUST be for EXACTLY the number of people specified by the user
+- All recipes MUST be for EXACTLY the number of people specified
 - Do NOT change or assume serving size
-- Ingredient quantities MUST scale to the exact serving count
+- Ingredient quantities MUST scale exactly to servings
 - If user selects 2 servings, servings field MUST be 2
 
 🔥 COUNT RULE (MANDATORY):
 - Always return EXACTLY 3 recipes
 - If fewer unique dishes are possible,
-  create additional simple variations using the same ingredients
+  create simple variations using the same ingredients
 - Never return fewer than 3 recipes
-
 
 🔥 KIDS FRIENDLY RULE (if kidsFriendly=true):
 - Reduce spice levels
 - Avoid bitter or very spicy ingredients
-- Mention 1 short tip to make dish appealing for kids
+- Mention 1 short kidsTip to make dish appealing for kids
 
 🔥 HEALTH RULES:
 - If diabetic=true, avoid sugar and refined flour
 - If weightLoss=true, use low oil and mention portion control
-- If both true, satisfy both
+- If both true, satisfy both together
+- Nutrition must reflect these health rules
 
-🔥 TIME RULE:
-- Prep + cook time must not exceed available time
-- Use realistic step timings
+🔥 TIME CONSISTENCY RULE (STRICT):
+- Each step MUST include timeMinutes
+- SUM of all step timeMinutes MUST be LESS THAN OR EQUAL TO totalTimeMinutes
+- totalTimeMinutes MUST equal prepTimeMinutes + cookTimeMinutes
+- Do NOT exceed available total time provided by user
+- If needed, shorten steps realistically
+
+🔥 NUTRITION RULE (NEW – VERY IMPORTANT):
+- For EACH dish, calculate approximate nutrition PER SERVING
+- Nutrition must be based on:
+  - ingredients
+  - quantities
+  - cooking method
+  - serving count
+- Calories must be realistic (not extreme)
+- Nutrition must align with health flags:
+  - weightLoss → lower calories, lower carbs, controlled fat
+  - diabetic → low sugar, low GI, controlled carbs
+- Keep nutrition simple and easy to understand
+
+Nutrition JSON format (MANDATORY):
+{
+  "calories": number,
+  "carbs": "g",
+  "protein": "g",
+  "fat": "g",
+  "dietTag": "Low Carb | High Protein | Diabetic Friendly | Balanced"
+}
 
 GENERAL RULES:
 - Use Hinglish
 - Assume Indian home kitchen
 - Min 8 and max 15 steps per dish
-- Return EXACT JSON only (no text outside JSON)
+- Return EXACT JSON only (no explanation outside JSON)
 
 OUTPUT FORMAT (STRICT):
 
@@ -193,6 +210,13 @@ OUTPUT FORMAT (STRICT):
       "prepTimeMinutes": 0,
       "cookTimeMinutes": 0,
       "totalTimeMinutes": 0,
+      "nutrition": {
+        "calories": 0,
+        "carbs": "",
+        "protein": "",
+        "fat": "",
+        "dietTag": ""
+      },
       "ingredients": [
         {
           "name": "",

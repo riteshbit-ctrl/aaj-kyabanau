@@ -10,6 +10,8 @@ public class RecipeResponse {
 
     private List<Dish> dishes;
 
+
+
     public List<Dish> getDishes() {
         return dishes;
     }
@@ -56,6 +58,16 @@ public class RecipeResponse {
         private int prepTimeMinutes;
         private int cookTimeMinutes;
         private int totalTimeMinutes;
+
+        public Nutrition getNutrition() {
+            return nutrition;
+        }
+
+        public void setNutrition(Nutrition nutrition) {
+            this.nutrition = nutrition;
+        }
+
+        private Nutrition nutrition;
 
         private List<Ingredient> ingredients;
         private List<Step> steps;
@@ -112,6 +124,58 @@ public class RecipeResponse {
         public void setText(String text) { this.text = text; }
         public void setTimeMinutes(int timeMinutes) { this.timeMinutes = timeMinutes; }
     }
+
+    public static class Nutrition {
+        private int calories;
+
+        public int getCalories() {
+            return calories;
+        }
+
+        public void setCalories(int calories) {
+            this.calories = calories;
+        }
+
+        public String getCarbs() {
+            return carbs;
+        }
+
+        public void setCarbs(String carbs) {
+            this.carbs = carbs;
+        }
+
+        public String getProtein() {
+            return protein;
+        }
+
+        public void setProtein(String protein) {
+            this.protein = protein;
+        }
+
+        public String getFat() {
+            return fat;
+        }
+
+        public void setFat(String fat) {
+            this.fat = fat;
+        }
+
+        public String getDietTag() {
+            return dietTag;
+        }
+
+        public void setDietTag(String dietTag) {
+            this.dietTag = dietTag;
+        }
+
+        private String carbs;
+        private String protein;
+        private String fat;
+        private String dietTag;
+
+        // getters & setters
+    }
+
 
 }
 
