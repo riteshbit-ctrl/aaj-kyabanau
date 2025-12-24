@@ -9,6 +9,17 @@ public class UserRequest {
     private int timeMinutes;
     private int servings;
 
+    public String getCuisine() {
+        return cuisine;
+    }
+
+    public void setCuisine(String cuisine) {
+        this.cuisine = cuisine;
+    }
+
+    private String cuisine;
+
+
     public boolean isKidsFriendly() {
         return kidsFriendly;
     }

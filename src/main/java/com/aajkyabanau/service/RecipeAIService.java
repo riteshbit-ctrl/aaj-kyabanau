@@ -22,7 +22,8 @@ public class RecipeAIService {
     public RecipeResponse getSuggestions(UserRequest req) {
 
         String prompt = buildPrompt(req);
-
+        System.out.println("Cuisine from UI = " + req.getCuisine());
+        System.out.println("Prompt from buildPrompt = " + prompt);
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4.1-mini",
                 "messages", List.of(
@@ -55,14 +56,36 @@ public class RecipeAIService {
     }
 
     private String buildPrompt(UserRequest req) {
-        return String.format(
-                "Ingredients: %s\nTime: %d minutes\nDiabetic: %s\nWeight loss: %s\nReturn ONLY JSON.",
+
+        String cuisineLine = (req.getCuisine() != null && !req.getCuisine().isBlank())
+                ? "Preferred cuisine: " + req.getCuisine()
+                : "Preferred cuisine: Any Indian cuisine";
+
+        return String.format("""
+Ingredients available: %s
+%s
+Available time: %d minutes
+Number of people: %d
+Diabetic: %s
+Weight loss: %s
+Kids friendly: %s
+
+IMPORTANT:
+- Cuisine is a preference, not mandatory
+- Ingredients must still be respected
+- Follow all system rules
+- Return ONLY JSON
+""",
                 req.getIngredients(),
+                cuisineLine,
                 req.getTimeMinutes(),
+                req.getServings(),
                 req.isDiabetic(),
-                req.isWeightLoss()
+                req.isWeightLoss(),
+                req.isKidsFriendly()
         );
     }
+
 
     private RecipeResponse parseResponse(String rawResponse) {
         try {

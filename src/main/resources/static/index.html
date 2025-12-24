@@ -11,10 +11,8 @@
           max-width: 720px;
           margin: auto;
           padding: 12px;
-          background: #ffffff;
         }
 
-        /* Inputs */
         textarea, select, button {
           width: 100%;
           margin-top: 8px;
@@ -22,11 +20,6 @@
           font-size: 16px;
         }
 
-        textarea {
-          min-height: 60px;
-        }
-
-        /* Recipe Card */
         .card {
           border: 1px solid #ddd;
           border-radius: 10px;
@@ -35,58 +28,27 @@
           background: #fafafa;
         }
 
-        /* Recipe Title */
         .title {
           font-size: 20px;
-          font-weight: 700;
-          margin-bottom: 6px;
+          font-weight: bold;
         }
 
-        /* Meta info */
-        .meta {
-          font-size: 14px;
-          color: #666;
-          margin-bottom: 6px;
-        }
-
-        /* Sections */
         .section {
           margin-top: 10px;
-        }
-
-        /* Why text */
-        .why-text {
-          font-size: 14px;
-          color: #444;
-          background: #f2f2f2;
-          padding: 8px;
-          border-radius: 6px;
-        }
-
-        /* Ingredient list */
-        .section ul {
-          margin-top: 6px;
-          padding-left: 18px;
-        }
-
-        /* Buttons */
-        button {
-          cursor: pointer;
         }
 
         button.primary {
           background: #ff9800;
           border: none;
-          color: #fff;
+          color: white;
           font-weight: bold;
         }
 
         button.secondary {
-          background: #ffffff;
+          background: white;
           border: 1px solid #ccc;
         }
 
-        /* Loading spinner */
         .spinner {
           margin: auto;
           width: 40px;
@@ -101,7 +63,6 @@
           100% { transform: rotate(360deg); }
         }
 
-        /* Cooking mode */
         #cookMode {
           border: 1px solid #ddd;
           border-radius: 10px;
@@ -110,14 +71,38 @@
           margin-top: 16px;
         }
 
-        /* Today Plan Banner */
         #todayPlanBanner {
           margin-top: 16px;
           padding: 12px;
+          background
           background: #fff3e0;
           border: 1px solid #ff9800;
           border-radius: 10px;
         }
+
+        /* Cooking Mode */
+#cookMode {
+  display: none;
+  border: 2px solid #ff9800;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 20px;
+  background: #fff8f0;
+}
+
+.active-step {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 12px 0;
+}
+
+.cook-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+
     </style>
 </head>
 
@@ -125,8 +110,17 @@
 
 <h2>🍲 Aaj Kya Banau?</h2>
 
-<textarea id="ingredients" placeholder="Fridge mein kya hai? (aloo, matar, palak...)"></textarea>
+<textarea id="ingredients" placeholder="Fridge mein kya hai? (ingredients)"></textarea>
+
 <button onclick="startVoice()">🎤 Speak</button>
+
+<input
+        type="text"
+        id="cuisine"
+        placeholder="🍛 Cuisine (optional) e.g. Bihari, South Indian, Jain"
+        style="width:100%; margin-top:8px; padding:10px; font-size:16px;"
+/>
+
 
 <select id="time">
     <option value="15">15 min</option>
@@ -157,6 +151,12 @@
     </div>
 </div>
 
+<!-- SAVED RECIPES -->
+<div id="savedSection" style="display:none; margin-top:20px;">
+    <h3>❤️ Saved Recipes</h3>
+    <div id="savedList"></div>
+</div>
+
 <!-- LOADING -->
 <div id="loading" style="display:none; text-align:center; margin-top:20px;">
     <div class="spinner"></div>
@@ -172,17 +172,31 @@
 <div id="result"></div>
 
 <!-- COOKING MODE -->
-<div id="cookMode" style="display:none;">
+<div id="cookMode">
     <h3 id="cookTitle"></h3>
-    <div id="stepCounter"></div>
-    <p id="stepText" style="font-size:18px;"></p>
-    <p id="stepTime"></p>
+    <label style="display:block; margin-bottom:8px;">
+        <input type="checkbox" id="voiceToggle">
+        🔊 Read steps aloud
+    </label>
 
-    <div style="display:flex; gap:10px;">
-        <button class="secondary" onclick="prevStep()">◀ Prev</button>
-        <button class="primary" onclick="nextStep()">Next ▶</button>
+    <div id="stepText" class="active-step"></div>
+    <div id="stepTime"></div>
+
+    <div id="timerText" style="margin-top:6px; font-weight:bold;"></div>
+
+    <div id="timerControls" class="cook-controls" style="display:none;">
+        <button onclick="startTimer()">▶ Start</button>
+        <button onclick="pauseTimer()">⏸ Pause</button>
+        <button onclick="resetTimer()">⏹ Reset</button>
+    </div>
+
+    <div class="cook-controls">
+        <button onclick="prevStep()">⬅️ Back</button>
+        <button onclick="nextStep()">➡️ Next</button>
+        <button onclick="exitCooking()">❌ Exit</button>
     </div>
 </div>
+
 
 <script src="/app.js"></script>
 </body>

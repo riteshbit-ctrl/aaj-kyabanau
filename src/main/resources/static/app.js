@@ -16,6 +16,12 @@ let currentDishes = [];
 let cookingDish = null;
 let stepIndex = 0;
 let todaysPlan = null;
+let savedRecipes = [];
+let timerInterval = null;
+let remainingSeconds = 0;
+let voiceEnabled = false;
+
+
 
 
 /* =========================
@@ -64,12 +70,14 @@ function suggest() {
 
   const body = {
     ingredients: document.getElementById("ingredients").value,
+    cuisine: document.getElementById("cuisine").value || "",
     timeMinutes: parseInt(document.getElementById("time").value),
     servings: parseInt(document.getElementById("servings").value),
     diabetic: document.getElementById("diabetic").checked,
     weightLoss: document.getElementById("weightLoss").checked,
     kidsFriendly: document.getElementById("kidsFriendly").checked
   };
+
 
   fetch("/api/suggest", {
     method: "POST",
@@ -155,6 +163,7 @@ function render(data) {
     <div style="display:flex; gap:8px; margin-top:14px;">
       <button class="secondary" onclick="setTodayPlan(${index})">🍽️ Cook Today</button>
       <button class="primary" onclick="startCooking(${index})">👩‍🍳 Start Cooking</button>
+       <button onclick="saveRecipe(${index})">❤️ Save</button>
     </div>
   `;
 
@@ -163,6 +172,21 @@ function render(data) {
     resultEl.appendChild(card);
   });
 }
+
+function saveRecipe(index) {
+  const recipe = currentDishes[index];
+
+  // Prevent duplicates
+  if (savedRecipes.find(r => r.name === recipe.name)) {
+    alert("Already saved 😊");
+    return;
+  }
+
+  savedRecipes.push(recipe);
+  localStorage.setItem("savedRecipes", JSON.stringify(savedRecipes));
+  renderSavedRecipes();
+}
+
 
 
 /* =========================
@@ -200,8 +224,74 @@ function startCooking(index) {
   document.getElementById("cookMode").style.display = "block";
   document.getElementById("cookTitle").innerText = cookingDish.name;
 
-  showStep();
+  renderCookStep();
 }
+
+function renderCookStep() {
+  if (!cookingDish || !cookingDish.steps) return;
+
+  const step = cookingDish.steps[stepIndex];
+
+  document.getElementById("stepText").innerText =
+    `Step ${stepIndex + 1}: ${step.text}`;
+
+  if (step.timeMinutes) {
+    remainingSeconds = step.timeMinutes * 60;
+    updateTimerUI();
+    document.getElementById("timerControls").style.display = "block";
+  } else {
+    document.getElementById("timerText").innerText = "";
+    document.getElementById("timerControls").style.display = "none";
+  }
+
+  stopTimer();
+
+  // 🔊 SPEAK STEP
+  speakStep(`Step ${stepIndex + 1}. ${step.text}`);
+}
+
+
+function startTimer() {
+  if (timerInterval || remainingSeconds <= 0) return;
+
+  timerInterval = setInterval(() => {
+    remainingSeconds--;
+    updateTimerUI();
+
+    if (remainingSeconds <= 0) {
+      stopTimer();
+      alert("⏰ Step complete!");
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  stopTimer();
+}
+
+function resetTimer() {
+  stopTimer();
+  const step = cookingDish.steps[stepIndex];
+  remainingSeconds = step.timeMinutes * 60;
+  updateTimerUI();
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function updateTimerUI() {
+  const mins = Math.floor(remainingSeconds / 60);
+  const secs = remainingSeconds % 60;
+
+  document.getElementById("timerText").innerText =
+    `⏳ Remaining: ${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+
 
 function showStep() {
   const step = cookingDish.steps[stepIndex];
@@ -214,18 +304,40 @@ function showStep() {
 }
 
 function nextStep() {
+  stopTimer();
+
   if (stepIndex < cookingDish.steps.length - 1) {
     stepIndex++;
-    showStep();
+    renderCookStep();
+  } else {
+    alert("🎉 Recipe complete!");
   }
 }
 
+
+
 function prevStep() {
+  stopTimer();
+
   if (stepIndex > 0) {
     stepIndex--;
-    showStep();
+    renderCookStep();
   }
 }
+
+
+function exitCooking() {
+  stopTimer();
+  window.speechSynthesis.cancel();
+
+  cookingDish = null;
+  stepIndex = 0;
+
+  document.getElementById("cookMode").style.display = "none";
+  document.getElementById("result").style.display = "block";
+}
+
+
 
 
 /* =========================
@@ -233,9 +345,83 @@ function prevStep() {
 ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("todaysPlan");
-  if (saved) {
-    todaysPlan = JSON.parse(saved);
+  const savedPlan = localStorage.getItem("todaysPlan");
+  if (savedPlan) {
+    todaysPlan = JSON.parse(savedPlan);
     showTodayPlan();
   }
+
+  const saved = localStorage.getItem("savedRecipes");
+  if (saved) {
+    savedRecipes = JSON.parse(saved);
+    renderSavedRecipes();
+  }
 });
+
+document.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "voiceToggle") {
+    voiceEnabled = e.target.checked;
+  }
+});
+
+function speakStep(text) {
+  if (!voiceEnabled) return;
+
+  // Stop any ongoing speech
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-IN"; // best for Hinglish
+  utterance.rate = 0.95;   // slightly slower for clarity
+
+  window.speechSynthesis.speak(utterance);
+}
+
+
+function renderSavedRecipes() {
+  const section = document.getElementById("savedSection");
+  const list = document.getElementById("savedList");
+
+  if (!savedRecipes.length) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+  list.innerHTML = "";
+
+  savedRecipes.forEach((r, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div class="title">🍽️ ${r.name}</div>
+      <div class="meta">⏱️ ${r.totalTimeMinutes} min</div>
+
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="primary" onclick="startCookingFromSaved(${i})">👩‍🍳 Cook</button>
+        <button onclick="removeSaved(${i})">❌ Remove</button>
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+function startCookingFromSaved(index) {
+  cookingDish = savedRecipes[index];
+  stepIndex = 0;
+
+  document.getElementById("result").style.display = "none";
+  document.getElementById("cookMode").style.display = "block";
+  document.getElementById("cookTitle").innerText = cookingDish.name;
+
+  showStep();
+}
+
+function removeSaved(index) {
+  savedRecipes.splice(index, 1);
+  localStorage.setItem("savedRecipes", JSON.stringify(savedRecipes));
+  renderSavedRecipes();
+}
+
