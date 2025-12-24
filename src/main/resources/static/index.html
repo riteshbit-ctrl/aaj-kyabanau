@@ -131,6 +131,10 @@
   flex: 1;
 }
     </style>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff9800">
+
 </head>
 
 <body>
@@ -226,5 +230,12 @@
 
 
 <script src="/app.js"></script>
+<script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js")
+        .then(() => console.log("Service Worker registered"))
+        .catch(err => console.log("SW registration failed", err));
+    }
+</script>
 </body>
 </html>
