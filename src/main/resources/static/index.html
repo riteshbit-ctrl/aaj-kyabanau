@@ -13,11 +13,42 @@
           padding: 12px;
         }
 
-        textarea, select, button {
+        textarea, select, button, input[type="text"] {
           width: 100%;
           margin-top: 8px;
           padding: 10px;
           font-size: 16px;
+          box-sizing: border-box;
+        }
+
+        /* 👇 NEW rows */
+        .row {
+          display: flex;
+          gap: 10px;
+          width: 100%;
+        }
+        .row > * { flex: 1; }
+
+        @media (max-width:480px){
+            .row { flex-direction: column; }
+        }
+
+        /* 🎤 mic inside ingredients */
+        .ingredients-box {
+            position: relative;
+        }
+        #ingredients {
+            padding-right: 42px;
+        }
+        #micBtn {
+            position: absolute;
+            right: 6px;
+            top: 6px;
+            padding: 8px 10px;
+            background: #eee;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
         }
 
         .card {
@@ -134,65 +165,115 @@
 
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ff9800">
-
 </head>
 
 <body>
 
 <h2>🍲 Aaj Kya Banau?</h2>
+
 <!-- INSTALL APP BUTTON -->
-<button
-        id="installBtn"
-        class="primary"
-        style="display:none; margin-bottom:12px;"
->
+<button id="installBtn" class="primary" style="display:none; margin-bottom:12px;">
     📲 Install App
 </button>
 
+<!-- 🎤 INGREDIENTS WITH MIC -->
+<!-- INGREDIENTS + MIC -->
+<div style="position:relative; width:100%; margin-top:8px;">
+  <textarea id="ingredients"
+            placeholder="Fridge mein kya hai? (ingredients)"
+            style="width:100%; padding:10px 42px 10px 10px; font-size:16px; resize:vertical;"></textarea>
 
-<textarea id="ingredients" placeholder="Fridge mein kya hai? (ingredients)"></textarea>
+    <!-- mic button (properly aligned + click only on icon) -->
+    <button onclick="startVoice()"
+            style="
+            position:absolute;
+            right:12px;
+            top:50%;
+            transform:translateY(-50%);
+            background:none;
+            border:none;
+            cursor:pointer;
+            font-size:20px;
+            padding:0;
+            height:24px;
+            width:24px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:10;
+          ">
+        🎤
+    </button>
+</div>
 
-<button onclick="startVoice()">🎤 Speak</button>
 
-<input
-        type="text"
-        id="cuisine"
-        placeholder="🍛 Cuisine (optional) e.g. Bihari, South Indian, Jain"
-        style="width:100%; margin-top:8px; padding:10px; font-size:16px;"
-/>
+<!-- 🍛 CUISINE + LANGUAGE -->
+<div class="row" style="margin-top:14px;">
+    <div>
+        <label for="cuisine" style="font-weight:bold; display:block; margin-bottom:4px;">
+            🍛 Cuisine (optional)
+        </label>
+        <input
+                type="text"
+                id="cuisine"
+                placeholder="Bihari, South Indian, Jain"
+        />
+    </div>
 
-<select id="language" style="margin-top:8px;">
-    <option value="hinglish">🌐 Hinglish</option>
-    <option value="en">English</option>
-    <option value="hi">हिंदी</option>
-    <option value="ta">தமிழ்</option>
-    <option value="te">తెలుగు</option>
-    <option value="kn">ಕನ್ನಡ</option>
-    <option value="bn">বাংলা</option>
-    <option value="mr">मराठी</option>
-</select>
+    <div>
+        <label for="language" style="font-weight:bold; display:block; margin-bottom:4px;">
+            🌐 Output Language
+        </label>
+        <select id="language">
+            <option value="hinglish">Hinglish</option>
+            <option value="en">English</option>
+            <option value="hi">हिंदी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="te">తెలుగు</option>
+            <option value="kn">ಕನ್ನಡ</option>
+            <option value="bn">বাংলা</option>
+            <option value="mr">मराठी</option>
+        </select>
+    </div>
+</div>
 
 
-<select id="time">
-    <option value="15">15 min</option>
-    <option value="30">30 min</option>
-    <option value="45">45 min</option>
-</select>
+<!-- ⏱️ TIME + SERVINGS -->
+<div class="row" style="margin-top:14px;">
+    <div>
+        <label for="time" style="font-weight:bold; display:block; margin-bottom:4px;">
+            ⏳ Cooking Time
+        </label>
+        <select id="time">
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+        </select>
+    </div>
 
-<select id="servings">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-</select>
+    <div>
+        <label for="servings" style="font-weight:bold; display:block; margin-bottom:4px;">
+            🍽 Servings
+        </label>
+        <select id="servings">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </div>
+</div>
 
+
+<!-- CHECKBOXES (unchanged) -->
 <div style="margin-top:10px;">
     <label><input type="checkbox" id="diabetic"> Diabetic</label>
     <label style="margin-left:10px;"><input type="checkbox" id="weightLoss"> Weight Loss</label>
     <label style="margin-left:10px;"><input type="checkbox" id="kidsFriendly"> Kids Friendly</label>
 </div>
 
-<button id="suggestBtn" class="primary" onclick="suggest()">Suggest Karo</button>
+<button id="suggestBtn" class="primary" onclick="suggest()" style="margin-top:8px;">Suggest Karo</button>
+
 
 <!-- TODAY PLAN -->
 <div id="todayPlanBanner" style="display:none;">
@@ -257,5 +338,6 @@
         .catch(err => console.log("SW registration failed", err));
     }
 </script>
+
 </body>
 </html>
