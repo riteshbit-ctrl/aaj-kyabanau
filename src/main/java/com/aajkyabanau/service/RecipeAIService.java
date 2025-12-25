@@ -61,9 +61,14 @@ public class RecipeAIService {
                 ? "Preferred cuisine: " + req.getCuisine()
                 : "Preferred cuisine: Any Indian cuisine";
 
+        String language = req.getLanguage() == null
+                ? "hinglish"
+                : req.getLanguage();
+
         return String.format("""
 Ingredients available: %s
 %s
+language: %s
 Available time: %d minutes
 Number of people: %d
 Diabetic: %s
@@ -78,6 +83,7 @@ IMPORTANT:
 """,
                 req.getIngredients(),
                 cuisineLine,
+                language,
                 req.getTimeMinutes(),
                 req.getServings(),
                 req.isDiabetic(),
@@ -118,6 +124,7 @@ You are an Indian home cooking assistant.
 User provides:
 - Ingredients (MUST be used)
 - Cuisine preference (optional)
+- language selected
 - Available total time in minutes
 - Number of people (servings)
 - Flags: diabetic (true/false), weightLoss (true/false), kidsFriendly (true/false)
@@ -125,12 +132,19 @@ User provides:
 Example Hinglish style:
 "Ab kadhai garam karo aur thoda sa tel daalo. Jab tel garam ho jaaye, jeera daal ke ache se bhun lo."
 
-🔥 LANGUAGE RULE (STRICT):
-- Use Hinglish ONLY (Hindi words in English script)
-- Do NOT use pure English sentences
-- Every step and explanation must include Hindi words like:
-  "thoda", "ache se", "dhyan se", "ab", "phir", "jab tak", "halka"
-- If output sounds fully English, it is WRONG
+LANGUAGE OUTPUT RULE (VERY STRICT):
+- Output ALL text strictly in the selected language: {language}
+- Do NOT mix languages
+- Maintain natural Indian cooking tone
+- Use native script for non-Hinglish languages:
+  hi → Devanagari
+  en -> English
+  ta → Tamil
+  te → Telugu
+  kn → Kannada
+  bn → Bengali
+  mr → Marathi
+- Steps must be easy to understand for home cooking
 
 🔥 INGREDIENT USAGE RULES (VERY IMPORTANT):
 - Use at least ONE provided ingredient per dish
@@ -193,8 +207,7 @@ Nutrition JSON format (MANDATORY):
   "dietTag": "Low Carb | High Protein | Diabetic Friendly | Balanced"
 }
 
-GENERAL RULES:
-- Use Hinglish
+GENERAL RULES (STRICT):
 - Assume Indian home kitchen
 - Min 8 and max 15 steps per dish
 - Return EXACT JSON only (no explanation outside JSON)

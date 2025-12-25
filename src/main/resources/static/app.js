@@ -1,3 +1,10 @@
+console.log("app.js loaded");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  console.log("🔥 beforeinstallprompt FIRED");
+});
+
+
 /* =========================
    GLOBAL STATE & MESSAGES
 ========================= */
@@ -19,6 +26,22 @@ let timerInterval = null;
 let remainingSeconds = 0;
 let voiceEnabled = false;
 let savedRecipes = [];
+/* =========================
+   PWA INSTALL SUPPORT
+========================= */
+
+let deferredPrompt = null;
+
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  const installBtn = document.getElementById("installBtn");
+  if (installBtn) installBtn.style.display = "block";
+});
+
+
 
 
 /* =========================
@@ -72,7 +95,8 @@ function suggest() {
     servings: parseInt(document.getElementById("servings").value),
     diabetic: document.getElementById("diabetic").checked,
     weightLoss: document.getElementById("weightLoss").checked,
-    kidsFriendly: document.getElementById("kidsFriendly").checked
+    kidsFriendly: document.getElementById("kidsFriendly").checked,
+    language: document.getElementById("language").value
   };
 
   fetch("/api/suggest", {
@@ -383,4 +407,39 @@ function shareRecipe(index) {
   const encoded = encodeURIComponent(text);
   window.open(`https://wa.me/?text=${encoded}`, "_blank");
 }
+
+
+/* =========================
+   INSTALL APP LOGIC
+========================= */
+
+// Listen for install availability
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault(); // Stop automatic mini-bar
+  deferredPrompt = e;
+
+  const installBtn = document.getElementById("installBtn");
+  if (installBtn) {
+    installBtn.style.display = "block";
+  }
+});
+
+// Handle install button click
+document.addEventListener("click", async (e) => {
+  if (e.target.id === "installBtn" && deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    e.target.style.display = "none";
+  }
+});
+
+// Hide button after install
+window.addEventListener("appinstalled", () => {
+  const installBtn = document.getElementById("installBtn");
+  if (installBtn) {
+    installBtn.style.display = "none";
+  }
+});
+
 

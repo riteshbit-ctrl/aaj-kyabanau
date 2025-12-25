@@ -9,6 +9,16 @@ public class UserRequest {
     private int timeMinutes;
     private int servings;
 
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    private String language = "hinglish";
+
     public String getCuisine() {
         return cuisine;
     }
