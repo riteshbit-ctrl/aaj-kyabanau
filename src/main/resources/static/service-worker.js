@@ -1,5 +1,5 @@
 // 🚀 BUMP THIS VERSION WHEN YOU DEPLOY
-const CACHE_VERSION = "v7.2";
+const CACHE_VERSION = "v7.4";
 const CACHE_NAME = `aaj-kyabanau-${CACHE_VERSION}`;
 
 // Files that can be cached (static assets only)
@@ -45,6 +45,15 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const req = event.request;
 
+      // 1️⃣ Don't touch POST requests (avoid errors)
+      if (req.method === "POST") {
+        return event.respondWith(fetch(req));
+      }
+        // 2️⃣ Never cache index.html or app.js — always fetch new
+        const url = new URL(req.url);
+        if (url.pathname.endsWith("/index.html") || url.pathname.endsWith("/app.js")) {
+          return event.respondWith(fetch(req));
+        }
   // Ensure UI updates after deploy — never cache HTML
   if (req.mode === "navigate" || req.destination === "document") {
     return event.respondWith(fetch(req).catch(() => caches.match("/index.html")));
