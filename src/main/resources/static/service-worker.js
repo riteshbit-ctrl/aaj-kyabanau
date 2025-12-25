@@ -1,5 +1,5 @@
 // 🚀 BUMP THIS VERSION WHEN YOU DEPLOY
-const CACHE_VERSION = "v7.4";
+const CACHE_VERSION = "v7.5";
 const CACHE_NAME = `aaj-kyabanau-${CACHE_VERSION}`;
 
 // Files that can be cached (static assets only)
