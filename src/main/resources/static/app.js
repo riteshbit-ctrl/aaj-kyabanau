@@ -442,4 +442,11 @@ window.addEventListener("appinstalled", () => {
   }
 });
 
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    console.log("🔄 New version activated — refreshing...");
+    window.location.reload();
+  });
+}
+
 
