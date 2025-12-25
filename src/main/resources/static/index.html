@@ -188,7 +188,7 @@
             style="width:100%; padding:10px 82px 10px 10px; font-size:16px; resize:vertical;"></textarea>
 
     <!-- 📷 CAMERA / IMAGE UPLOAD BUTTON -->
-    <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="uploadImage()">
+    <input type="file" id="imageUpload" accept="image/*" style="display:none" capture="environment" onchange="uploadImage()">
 
     <button onclick="document.getElementById('imageUpload').click()"
             style="position:absolute;
