@@ -448,5 +448,39 @@ if ("serviceWorker" in navigator) {
     window.location.reload();
   });
 }
+/* =========================
+   IMAGE UPLOAD + INGREDIENT DETECT
+========================= */
+
+
+function uploadImage() {
+  const fileInput = document.getElementById("imageUpload");
+
+  if (!fileInput.files.length) {
+    alert("Please select an image first");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]); // 👈 must match backend name
+
+  fetch("/api/detectOpenAI", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Detected ingredients:", data);
+
+      // Append detected ingredients to textarea
+      const ingEl = document.getElementById("ingredients");
+      ingEl.value += (ingEl.value ? ", " : "") + data.join(", ");
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ Image detection failed");
+    });
+}
+
 
 

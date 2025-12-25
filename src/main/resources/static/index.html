@@ -185,9 +185,31 @@
 <div style="position:relative; width:100%; margin-top:8px;">
   <textarea id="ingredients"
             placeholder="Fridge mein kya hai? (ingredients)"
-            style="width:100%; padding:10px 42px 10px 10px; font-size:16px; resize:vertical;"></textarea>
+            style="width:100%; padding:10px 82px 10px 10px; font-size:16px; resize:vertical;"></textarea>
 
-    <!-- mic button (properly aligned + click only on icon) -->
+    <!-- 📷 CAMERA / IMAGE UPLOAD BUTTON -->
+    <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="uploadImage()">
+
+    <button onclick="document.getElementById('imageUpload').click()"
+            style="position:absolute;
+            right:45px;
+            top:50%;
+            transform:translateY(-50%);
+            background:none;
+            border:none;
+            cursor:pointer;
+            font-size:20px;
+            padding:0;
+            height:24px;
+            width:24px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:10;">
+        📷
+    </button>
+
+    <!-- 🎤 MIC BUTTON -->
     <button onclick="startVoice()"
             style="
             position:absolute;
@@ -208,8 +230,10 @@
           ">
         🎤
     </button>
-</div>
 
+
+
+</div>
 
 <!-- 🍛 CUISINE + LANGUAGE -->
 <div class="row" style="margin-top:14px;">
