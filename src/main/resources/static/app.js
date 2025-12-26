@@ -461,8 +461,14 @@ function uploadImage() {
     return;
   }
 
+  // 👉 show spinner & message while uploading
+  const loadingEl = document.getElementById("loading");
+  const loadingTextEl = document.getElementById("loadingText");
+  loadingEl.style.display = "block";
+  loadingTextEl.innerText = "📸 Image scan ho raha hai…";
+
   const formData = new FormData();
-  formData.append("file", fileInput.files[0]); // 👈 must match backend name
+  formData.append("file", fileInput.files[0]);
 
   fetch("/api/detectOpenAI", {
     method: "POST",
@@ -472,13 +478,17 @@ function uploadImage() {
     .then(data => {
       console.log("Detected ingredients:", data);
 
-      // Append detected ingredients to textarea
       const ingEl = document.getElementById("ingredients");
       ingEl.value += (ingEl.value ? ", " : "") + data.join(", ");
     })
     .catch(err => {
       console.error(err);
       alert("❌ Image detection failed");
+    })
+    .finally(() => {
+      // 👉 hide spinner after response (success or error)
+      loadingEl.style.display = "none";
+      loadingTextEl.innerText = "";
     });
 }
 
